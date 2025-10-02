@@ -1,0 +1,242 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\begin{document}
+
+\title{Instalación del Sistema Operativo GNU/Linux Utilizando Tecnología de Virtualización}
+
+\author{\IEEEauthorblockN{Karen Andrade}
+\IEEEauthorblockA{\textit{Ingeniería en Telecomunicaciones} \\
+\textit{Universidad de Cuenca} \\
+Cuenca, Ecuador \\
+karen.andradeg@ucuenca.edu.ec}
+}
+
+\maketitle
+
+\begin{abstract}
+Este reporte documenta el proceso completo de instalación del sistema operativo Ubuntu GNU/Linux utilizando el software de virtualización Oracle VM VirtualBox. El procedimiento incluye la descarga e instalación de VirtualBox, creación de una máquina virtual, instalación de Ubuntu y configuración de características esenciales. El reporte también detalla los desafíos técnicos encontrados durante el proceso de instalación, particularmente problemas con la preparación de unidades USB, y proporciona las soluciones implementadas para resolver estos problemas. La implementación exitosa demuestra la aplicación práctica de conceptos de virtualización incluyendo hipervisores, máquinas virtuales y asignación de recursos.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Virtualización, VirtualBox, Ubuntu, GNU/Linux, Hipervisor, Máquina Virtual
+\end{IEEEkeywords}
+
+\section{Introducción}
+La tecnología de virtualización ha revolucionado la computación moderna permitiendo que múltiples sistemas operativos se ejecuten concurrentemente en una sola máquina física. Esta tecnología optimiza la utilización de recursos, reduce costos y proporciona entornos aislados para desarrollo de software, pruebas y propósitos educativos. Este trabajo práctico se enfoca en implementar un entorno virtualizado GNU/Linux utilizando Oracle VM VirtualBox, un hipervisor tipo 2 que se ejecuta en un sistema operativo anfitrión.
+
+Los objetivos de este taller incluyen comprender los fundamentos de virtualización, crear y gestionar máquinas virtuales, asignar recursos de hardware apropiados y evaluar el impacto de la virtualización en el uso de recursos del sistema. Adicionalmente, el taller busca familiarizar a los estudiantes con terminología esencial de virtualización y las capacidades de configuración y gestión de VirtualBox.
+
+\section{Marco Teórico}
+
+\subsection{Conceptos de Virtualización}
+La virtualización es una tecnología que permite al software emular la funcionalidad de un sistema operativo, permitiendo que múltiples sistemas operativos o aplicaciones se ejecuten en una sola máquina física. Este enfoque optimiza el uso de recursos y reduce costos operativos.
+
+\subsection{Hipervisores}
+El hipervisor es un software crucial en el proceso de virtualización, permitiendo la creación y gestión de múltiples instancias de sistemas operativos conocidas como máquinas virtuales (VMs) en un solo computador. Su función es asignar a cada VM una porción de recursos físicos—memoria, almacenamiento y capacidad de procesamiento—asegurando que operen independientemente sin interferencia.
+
+VirtualBox es un hipervisor tipo 2 (hospedado) desarrollado por Oracle Corporation que permite la creación y gestión de máquinas virtuales en computadores de escritorio, portátiles y servidores. Su versatilidad lo hace ideal para entornos de desarrollo, pruebas de software y entrenamiento en virtualización.
+
+\section{Metodología e Implementación}
+
+\subsection{Descarga e Instalación de VirtualBox}
+El proceso de virtualización comenzó con la descarga de la última versión de VirtualBox (versión 7.1.6) desde el sitio web oficial (\url{https://www.virtualbox.org/wiki/Downloads}). La instalación siguió los procedimientos estándar para aplicaciones Windows:
+
+\begin{enumerate}
+\item Ejecutó el instalador de VirtualBox descargado desde el sitio web oficial
+\item Siguió las instrucciones del asistente de instalación
+\item Instaló los paquetes adicionales requeridos cuando se le solicitó durante la instalación
+\item Completó la instalación sin complicaciones notables
+\end{enumerate}
+
+\subsection{Descarga de Imagen ISO de Ubuntu}
+Se seleccionó Ubuntu 24.04.3 LTS para la instalación debido a su estado de soporte a largo plazo (LTS), asegurando estabilidad y período de soporte extendido. El archivo ISO fue descargado desde el sitio web oficial de Ubuntu (\url{https://releases.ubuntu.com/noble/}), seleccionando específicamente la\textbf{ Imagen de Escritorio para PC de 64-bit }con tamaño aproximado de 6.4GB.
+
+\subsection{Desafíos en la Preparación de Unidades USB}
+Durante los intentos iniciales de crear una unidad USB booteable usando balenaEtcher, surgieron desafíos técnicos significativos:
+
+\begin{enumerate}
+\item Después de flashear la ISO de Ubuntu en unidades USB Lexar, los dispositivos se volvieron inaccesibles
+\item El sistema solicitó formateo, pero los intentos fallaron debido a errores de protección contra escritura
+\item Una unidad USB dejó de ser detectada por el computador completamente
+\item Se requirieron múltiples enfoques de solución de problemas para resolver los issues
+\end{enumerate}
+
+El proceso de resolución involucró el uso de herramientas de línea de comandos de Windows y la utilidad Administración de discos:
+
+\textbf{Intento de Solución Inicial usando DiskPart:}
+\begin{verbatim}
+diskpart
+list disk
+select disk X      # X = número del disco USB
+attributes disk clear readonly
+clean
+create partition primary
+format fs=ntfs quick
+assign
+exit
+\end{verbatim}
+
+Una unidad USB respondió exitosamente a este enfoque, mientras que la otra generó un error: "\textit{DiskPart ha encontrado un error: El dispositivo no está listo.}"
+
+\textbf{Resolución Final usando Administración de Discos:}
+\begin{enumerate}
+\item Accedió a Administración de discos mediante Clic derecho en Menú Inicio → Administración de discos
+\item Localizó la unidad USB mostrada como "No asignado" o "Desconocido"
+\item Clic derecho → Eliminar volumen → Crear nuevo volumen simple
+\item Siguió el asistente de creación de volumen con configuraciones predeterminadas
+\item Seleccionó sistema de archivos NTFS con opción de formato rápido
+\item Completó el proceso para restaurar la funcionalidad USB
+\end{enumerate}
+
+Después de resolver los problemas USB, la instalación de Ubuntu procedió exitosamente booteando desde la unidad USB (accedido presionando F2 durante el inicio del sistema para modificar el orden de booteo).
+
+\subsection{Creación y Configuración de la Máquina Virtual}
+La configuración de la máquina virtual siguió estas especificaciones:
+
+\begin{itemize}
+\item \textbf{Nombre:} Ubuntu
+\item \textbf{Tipo:} Linux
+\item \textbf{Versión:} Ubuntu (64-bit)
+\item \textbf{Memoria:} 4GB RAM asignados
+\item \textbf{Almacenamiento:} Disco virtual de 25GB asignado dinámicamente (formato VDI)
+\item \textbf{Procesadores:} 2 CPUs asignados
+\end{itemize}
+
+La opción \textbf{Omitir instalación desatendida} fue seleccionada para configurar manualmente las credenciales de usuario durante la instalación de Ubuntu. Se tuvo cuidado de evitar la zona roja en la asignación de memoria para prevenir degradación del rendimiento del sistema anfitrión.
+
+\subsection{Instalación de Ubuntu en la Máquina Virtual}
+El proceso de instalación de Ubuntu involucró:
+
+\begin{enumerate}
+\item Montar la imagen ISO de Ubuntu en la unidad óptica virtual
+\item Iniciar la máquina virtual y seleccionar "Probar o Instalar Ubuntu"
+\item Elegir instalación interactiva para guía paso a paso
+\item Seleccionar "Borrar disco e instalar Linux" (afectando solo el disco virtual)
+\item Configurar cuenta de usuario, contraseña y nombre de máquina
+\item Esperar la finalización de la instalación y reiniciar cuando se solicitó
+\end{enumerate}
+
+\subsection{Configuraciones Finales}
+Las configuraciones posteriores a la instalación incluyeron:
+
+\begin{enumerate}
+\item Remover la ISO de Ubuntu de la unidad óptica virtual para prevenir rebooteo desde medio de instalación
+\item Instalar VirtualBox Guest Additions mediante Dispositivos → Insertar imagen de CD de Guest Additions
+\item Ejecutar automáticamente el instalador de Guest Additions
+\item Reiniciar la máquina virtual para aplicar cambios
+\end{enumerate}
+
+\section{Resultados y Verificación}
+La instalación fue verificada exitosamente mediante múltiples pruebas:
+
+\begin{itemize}
+\item Ingreso exitoso usando las credenciales configuradas
+\item Funcionalidad adecuada del terminal con creación de acceso directo en favoritos
+\item Instalación correcta de Guest Additions confirmada por:
+\begin{itemize}
+\item Ajuste automático de resolución de pantalla en modo pantalla completa
+\item Integración perfecta del ratón entre sistemas anfitrión e invitado
+\item Sincronización funcional del portapapeles para copiar texto entre sistemas
+\end{itemize}
+\end{itemize}
+
+La máquina virtual mostró todos los indicadores de estado esperados en la interfaz de gestión de VirtualBox, confirmando operación adecuada.
+
+\section{Conclusión}
+El taller demostró exitosamente el proceso completo de implementar un entorno virtualizado GNU/Linux utilizando Oracle VM VirtualBox. La instalación de Ubuntu 24.04.2 LTS fue lograda siguiendo procedimientos establecidos, con todas las características configuradas funcionando como se esperaba.
+
+Los desafíos técnicos encontrados durante la preparación de unidades USB resaltaron la importancia de herramientas y técnicas adecuadas de gestión de discos. El proceso de resolución utilizando tanto herramientas de línea de comandos (DiskPart) como gráficas (Administración de discos) proporcionó experiencia valiosa en solución de problemas. La implementación exitosa confirma la viabilidad práctica de la tecnología de virtualización para crear entornos aislados de desarrollo y pruebas sin afectar el sistema operativo anfitrión.
+
+El conocimiento obtenido a través de este taller establece una base para mayor exploración de tecnologías de virtualización, incluyendo configuraciones avanzadas de redes, optimización de recursos y despliegue de entornos de software complejos dentro de máquinas virtuales.
+
+
+\begin{thebibliography}{00}
+\bibitem{b1} Oracle Corporation, ``Manual de Usuario de VirtualBox,'' 2025.
+\bibitem{b2} Documentación de Ubuntu, ``Notas de Lanzamiento de Ubuntu 24.04 LTS,'' 2024.
+\bibitem{b3} Smith, J., ``Tecnologías de Virtualización: Principios y Aplicaciones,'' IEEE Computing Journal, 2023.
+\bibitem{b4} Johnson, M., ``Administración Linux para Principiantes,'' Technical Publishing, 2024.
+\end{thebibliography}
+
+
+\section{Imágenes de Referencia}
+
+% Figura 1 - Problemas técnicos
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}
+        \centering
+        \includegraphics[width=0.9\linewidth]{instalacion.png}
+        \caption{Descarga de VirtualBox}
+        \label{fig:instalacion_virtualbox}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}
+        \centering
+        \includegraphics[width=0.9\linewidth]{virtualbox.png}
+        \caption{VirtualBox instalado}
+        \label{fig:virtualbox_instalado}
+    \end{subfigure}
+    
+   
+\end{figure}
+
+% Figura 2 - Problemas con USB
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}
+        \centering
+        \includegraphics[width=0.95\linewidth]{problema1.png}
+        \caption{Solicitud de formateo USB}
+        \label{fig:problema_formateo}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}
+        \centering
+        \includegraphics[width=0.95\linewidth]{problema2.png}
+        \caption{Error protección escritura}
+        \label{fig:error_proteccion}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}
+        \centering
+        \includegraphics[width=0.95\linewidth]{problema3.png}
+        \caption{USB no detectado}
+        \label{fig:usb_no_detectado}
+    \end{subfigure}
+    
+\end{figure}
+
+% Figura 3 - Configuración
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}
+        \centering
+        \includegraphics[width=0.9\linewidth]{configuracion1.png}
+        \caption{Configuración inicial}
+        \label{fig:configuracion_inicial}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}
+        \centering
+        \includegraphics[width=0.9\linewidth]{configuracion2.png}
+        \caption{Configuración final}
+        \label{fig:configuracion_final}
+    \end{subfigure}
+    
+   
+\end{figure}
+
+\end{document}
+
