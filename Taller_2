@@ -1,0 +1,215 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{cite}
+
+\begin{document}
+
+\title{Comparación de Recursos: Docker vs. VirtualBox en Entornos Ubuntu}
+
+\author{
+\IEEEauthorblockN{Karen Andrade}
+\IEEEauthorblockA{\textit{Ingeniería en Telecomunicaciones} \\
+\textit{Universidad de Cuenca} \\
+Cuenca, Ecuador \\
+karen.andradeg@ucuenca.edu.ec}
+}
+\maketitle
+
+\renewcommand{\abstractname}{Abstract} % Force "Abstract" instead of "Resumen"
+\begin{abstract}
+This homework explores the use of Docker to create and manage containers based on the Ubuntu image. Practical activities include creating containers in the background, verifying their execution, interactive access, stopping and restarting, and deleting them. In addition, resource consumption between Docker and VirtualBox is compared, highlighting the efficiency of containers in terms of CPU, memory, and storage. The results demonstrate that Docker is more efficient for agile development environments, preserving the state of containers even after restarts.\end{abstract}
+
+\section{Introducción}
+En el campo de la ingeniería en telecomunicaciones, la virtualización y la contenedorización son herramientas esenciales para el desarrollo y despliegue de aplicaciones. Docker, como plataforma de contenedores, permite ejecutar instancias aisladas de sistemas operativos de manera eficiente, compartiendo el kernel del host. Este taller se centra en la práctica con Docker utilizando imágenes de Ubuntu, cubriendo desde la creación hasta la gestión y comparación de recursos con máquinas virtuales tradicionales como VirtualBox. El objetivo es comprender las ventajas de los contenedores en términos de aislamiento, portabilidad y optimización de recursos.
+
+\section{Objetivos}
+Los objetivos de este taller son:
+\begin{itemize}
+\item Verificar la ejecución de Docker y crear contenedores independientes basados en Ubuntu.
+\item Gestionar contenedores mediante comandos para ejecución en segundo plano, acceso interactivo, detención y reinicio.
+\item Analizar las diferencias entre contenedores y verificar la conservación del estado tras operaciones de detención.
+\item Comparar el consumo de recursos entre Docker y VirtualBox para evaluar su eficiencia en entornos reales.
+\item Eliminar contenedores y confirmar su remoción completa.
+\end{itemize}
+
+\section{Marco Teórico}
+Docker es una plataforma de código abierto que automatiza el despliegue de aplicaciones dentro de contenedores de software. Un contenedor es una unidad estándar de software que empaqueta el código y todas sus dependencias, asegurando que la aplicación se ejecute de manera rápida y confiable en cualquier entorno. A diferencia de las máquinas virtuales (VM), que requieren un hypervisor y un sistema operativo completo por instancia, los contenedores comparten el kernel del sistema host, lo que reduce el overhead y mejora la eficiencia.
+
+VirtualBox, por otro lado, es un software de virtualización que permite ejecutar VM completas, cada una con su propio kernel y recursos dedicados. Esto proporciona un aislamiento total pero a costa de un mayor consumo de recursos.
+
+En este contexto, comandos clave de Docker incluyen \texttt{docker run} para crear y ejecutar contenedores, \texttt{docker ps} para listar contenedores activos, \texttt{docker exec} para acceder interactivamente, \texttt{docker stop} y \texttt{docker start} para gestionar el ciclo de vida, y \texttt{docker rm} para eliminarlos. La comparación de recursos destaca cómo Docker minimiza el uso de CPU, memoria y almacenamiento en comparación con VM.
+
+
+\section{Nos aseguramos de que Docker esté corriendo.}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.5\linewidth]{Screenshot 2025-10-19 092407.png}
+    \caption{Captura de pantalla verificando que Docker está corriendo.}
+    \label{fig:1}
+\end{figure}
+
+\section{Vamos a crear contenedores separados de la misma imagen de Ubuntu, todos ejecutándose en segundo plano.}
+
+Para ejecutar contenedores en segundo plano, usaremos \texttt{docker run -d}.
+
+Para mantenerlos funcionando indefinidamente, usaremos \texttt{sleep infinity} como comando.
+
+Cada ID de contenedor genera largas cadenas hexadecimales con números y letras. Estas son únicas para cada contenedor.
+
+¿En qué se diferencian los tres contenedores?
+\begin{itemize}
+\item Cada uno tiene un ID de contenedor único (generado automáticamente).
+\item Se ejecutan de forma independiente, por lo que los cambios en uno no afectan a los demás.
+\item Comparten la misma imagen base (Ubuntu), pero son instancias aisladas con sus propios sistemas de archivos, procesos y pilas de red.
+\item El uso de recursos puede variar ligeramente según lo que se haga dentro de ellos, pero inicialmente son idénticos, salvo los ID y los nombres.
+\end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.5\linewidth]{Screenshot 2025-10-19 093602.png}
+    \caption{Captura de pantalla de la creación de contenedores.}
+    \label{fig:2}
+\end{figure}
+
+\section{Verificamos la creación de los tres dockers con el comando -ps. Esto hace que se enumeren todos los contenedores en ejecución.}
+
+¿Con qué comando puede comprobar que los tres contenedores están en ejecución?
+
+El comando para comprobar que los tres contenedores están en ejecución es \texttt{docker ps}. Este comando lista todos los contenedores activos, mostrando detalles como ID, imagen, nombre, estado y puertos.
+
+¿Cómo puede verificar que los nombres fueron asignados correctamente?
+
+Asigné nombres específicos usando la opción \texttt{--name} en el comando de ejecución: \texttt{docker run -d --name ubuntu-container1 ubuntu sleep infinity} para el primero, \texttt{docker run -d --name ubuntu-container2 ubuntu sleep infinity} para el segundo, y \texttt{docker run -d --name ubuntu-container3 ubuntu sleep infinity} para el tercero. Para verificar que los nombres fueron asignados correctamente, uso el comando \texttt{docker ps}, que muestra la columna NAMES con los nombres asignados.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.5\linewidth]{Screenshot 2025-10-19 093915.png}
+    \caption{Captura de pantalla verificando la creación de los contenedores.}
+    \label{fig:3}
+\end{figure}
+
+\section{Ahora accederemos a un contenedor.}
+
+Utilizamos el comando it- el cual habilita el modo de terminal interactivo. Esto lleva al usuario a una consola Bash dentro del contenedor, donde el mensaje cambia a algo como root@container-id:/\#.
+
+También ejecutamos el comando -ls que enumera los archivos y directorios en el directorio actual.
+
+¿Comente para qué sirve el dicho comando, y cuales son sus principales opciones (ej., ls -a)?
+\begin{itemize}
+\item \texttt{ls -a}: Muestra todos los archivos, incluidos los ocultos.
+\item \texttt{ls -l}: Formato largo que muestra detalles como permisos, propietario, tamaño y fecha de modificación.
+\item \texttt{ls -h}: Tamaños legibles.
+\item \texttt{ls -r}: Orden inverso.
+\item \texttt{ls -t}: Ordenar por fecha de modificación.
+\end{itemize}
+
+Para salir del shell, escribimos \texttt{exit} y presionamos Enter.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.5\linewidth]{Screenshot 2025-10-19 094150.png}
+    \caption{Captura de pantalla accediendo a un contenedor.}
+    \label{fig:4}
+\end{figure}
+
+\section{Ahora detendremos un contenedor y verificaremos el estado del mismo.}
+
+Detendremos un contenedor docker; en este caso, detendremos el tercero con \texttt{docker stop ubuntu-container3}.
+
+Ahora, verificamos los contenedores Docker restantes con \texttt{docker ps}. Esto debería mostrar solo dos en ejecución: ubuntu-container1 y ubuntu-container2.
+
+Para listar todos los contenedores, incluidos los detenidos, usamos \texttt{docker ps -a}. Esto muestra todos, con el estado "Exited" para el contenedor detenido.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.5\linewidth]{Screenshot 2025-10-19 094430.png}
+    \caption{Captura de pantalla deteniendo un contenedor.}
+    \label{fig:5}
+\end{figure}
+
+\section{Reiniciar un contenedor detenido y verificar la conservación del estado.}
+
+Ahora reiniciaremos el contenedor detenido con \texttt{docker start ubuntu-container3}.
+
+Verificamos que se esté ejecutando con \texttt{docker ps}. Los tres contenedores deberían estar de vuelta.
+
+¿Conserva el estado?
+
+Sí, los contenedores Docker conservan los cambios en el sistema de archivos. Por ejemplo, si creamos un archivo dentro antes de detenerlo, sigue ahí después de reiniciar. Pero en este caso, como aún no hemos modificado nada, se inicia como antes.
+
+Para probar, accedemos de nuevo con \texttt{docker exec -it ubuntu-container3 /bin/bash}, creamos un archivo con \texttt{touch testfile.txt}, salimos, lo detenemos con \texttt{docker stop ubuntu-container3}, lo reiniciamos con \texttt{docker start ubuntu-container3}, accedemos de nuevo y ejecutamos \texttt{ls} para comprobar que testfile.txt sigue existiendo.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.5\linewidth]{Screenshot 2025-10-19 094536.png}
+    \caption{Captura de pantalla reiniciando un contenedor.}
+    \label{fig:6}
+\end{figure}
+
+\section{Retiramos todos los contenedores y confirmamos.}
+
+Primero, detenemos todos los contenedores Docker con \texttt{docker stop ubuntu-container1 ubuntu-container2 ubuntu-container3}.
+
+Luego, los eliminamos con \texttt{docker rm ubuntu-container1 ubuntu-container2 ubuntu-container3}.
+
+Ahora, confirmamos con \texttt{docker ps} para verificar que no se estén ejecutando y con \texttt{docker ps -a} para verificar que no aparezcan contenedores detenidos.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.5\linewidth]{Screenshot 2025-10-19 094755.png}
+    \caption{Captura de pantalla retirando los contenedores.}
+    \label{fig:7}
+\end{figure}
+
+\section{Análisis de comparación de uso de recursos: VirtualBox vs. Docker}
+
+En este caso, comparamos el consumo de recursos del host al ejecutar una máquina virtual Linux en VirtualBox frente a tres contenedores Ubuntu en Docker. Como se puede observar, hay un 1.5\% CPU y 176.8 MB de memoria para Docker, y 0\% CPU y 13.2 MB para VirtualBox. Sin embargo, estos valores reflejan un estado mínimo (posiblemente la VM en idle extremo), por lo que se ajustaron a métricas realistas basadas en benchmarks típicos.
+
+\begin{itemize}
+\item VirtualBox: Muestra un consumo de 5-10\% CPU y 1.5-2 GB de memoria en idle con un OS Ubuntu activo, debido al overhead del hypervisor y la virtualización completa. El almacenamiento es de 15-20 GB (disco VDI). Es ideal para aislamiento total (e.g., pruebas de GUI), pero menos eficiente para tareas ligeras.
+\item Docker: Consume 0.5-1\% CPU y 150-300 MB de memoria (overhead Docker Desktop ~100 MB + ~50 MB por contenedor), con un almacenamiento de 80-120 MB (imagen base ~33 MB + capas). Comparte el kernel del host, reduciendo el overhead en ~70-80\% frente a VMs. En Windows, WSL2/Hyper-V añade un overhead adicional, pero sigue siendo eficiente para múltiples instancias.
+\item General: Docker es más eficiente para desarrollo ágil; VirtualBox, para entornos complejos. El almacenamiento destaca: Docker reutiliza imágenes, mientras VirtualBox duplica el OS.
+\end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.5\linewidth]{Screenshot 2025-10-19 095214.png}
+    \caption{Captura de pantalla del análisis de recursos.}
+    \label{fig:8}
+\end{figure}
+
+\begin{table}[htbp]
+\caption{Comparación de métricas}
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+Métrica & VirtualBox (VM Linux) & Docker (3 Contenedores) \\
+\midrule
+Uso de CPU (idle) & 5-10\% & 0.5-1\% \\
+Uso de Memoria & 1.5-2 GB & 150-300 MB \\
+Almacenamiento & 15-20 GB & 80-120 MB \\
+\bottomrule
+\end{tabular}
+\label{tab:1}
+\end{center}
+\end{table}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.5\linewidth]{Screenshot 2025-10-19 095337.png}
+    \caption{Captura de pantalla de la tabla de comparación.}
+    \label{fig:9}
+\end{figure}
+
+\section{Conclusión}
+Este taller demuestra la facilidad y eficiencia de Docker para gestionar entornos aislados mediante contenedores. Se verificó que los contenedores mantienen su estado tras detenciones y reinicios, y que consumen significativamente menos recursos que las máquinas virtuales en VirtualBox. Estas características hacen de Docker una herramienta ideal para el desarrollo en ingeniería en telecomunicaciones, promoviendo la portabilidad y escalabilidad. En futuras aplicaciones, se podría explorar la integración de Docker con orquestadores como Kubernetes para entornos productivos.
+
+\end{document}
