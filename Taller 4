@@ -1,0 +1,265 @@
+\documentclass[conference]{IEEEtran}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,english]{babel}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{setspace}
+
+\captionsetup{font=footnotesize}
+\setlength{\parskip}{0.5ex}
+
+\title{Taller 4: Shell Bash de Linux }
+\author{\IEEEauthorblockN{Karen Andrade}
+\IEEEauthorblockA{Ingeniería en Telecomunicaciones \\
+Universidad de Cuenca \\
+karen.andradeg@ucuenca.edu.ec}}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{otherlanguage}{english}
+\begin{abstract}
+This report describes the development of the Linux Shell Bash workshop, performed inside a Docker Ubuntu environment. The practice included the use of navigation commands, file management, script creation, and automation of reports. The activity was executed successfully, demonstrating understanding of the Linux command line and its operation under a containerized system. All tasks were completed without errors using recursive commands such as \texttt{rm -r} and scripts for automated outputs.
+\end{abstract}
+\end{otherlanguage}
+
+\selectlanguage{spanish}
+
+\section{Introducción}
+El Taller 4 se centra en el uso del Shell Bash de Linux para ejecutar comandos y automatizar tareas dentro de un entorno controlado.  
+La práctica tiene como propósito familiarizarse con la línea de comandos, aprender la estructura del sistema de archivos de Linux y comprender el funcionamiento básico del intérprete Bash.
+
+
+\section{Marco Teórico}
+
+El \textbf{Shell Bash (Bourne Again Shell)} es uno de los intérpretes de comandos más utilizados en los sistemas operativos basados en Unix y GNU/Linux. Su función principal es permitir la comunicación entre el usuario y el sistema operativo a través de comandos escritos en una consola o terminal. A diferencia de las interfaces gráficas, el Shell proporciona un control directo sobre las funciones del sistema, lo que lo convierte en una herramienta esencial para administradores, programadores y estudiantes de ingeniería que requieren comprender el funcionamiento interno del sistema.
+
+Bash no solo interpreta comandos individuales, sino que también permite la creación de \textbf{scripts}, que son archivos de texto que contienen una secuencia de instrucciones automatizadas. Estos scripts son ampliamente usados para tareas de mantenimiento, configuración, compilación de programas y procesamiento de datos. El lenguaje Bash incluye estructuras de control como bucles (\texttt{for}, \texttt{while}), condicionales (\texttt{if}, \texttt{else}) y manejo de variables, lo cual lo hace extremadamente flexible.
+
+Dentro del contexto educativo, aprender Bash tiene una gran relevancia, ya que fomenta la comprensión del sistema operativo desde un nivel más técnico. Mientras que en entornos gráficos muchas operaciones se realizan mediante clics, en Bash cada acción debe ser entendida y escrita, lo que fortalece el razonamiento lógico y el conocimiento de las rutas, permisos y procesos internos del sistema.
+
+Durante esta práctica, se trabajó con comandos fundamentales que conforman la base de cualquier entorno Linux:
+\begin{itemize}
+    \item \texttt{pwd}, \texttt{ls}, \texttt{cd}: utilizados para conocer la ubicación actual y navegar entre directorios.
+    \item \texttt{mkdir}, \texttt{touch}, \texttt{cp}, \texttt{mv}, \texttt{rm}: comandos de creación, copia, movimiento y eliminación de archivos y carpetas.
+    \item \texttt{echo}, \texttt{cat}, \texttt{nano}: herramientas para generar, visualizar y editar el contenido de archivos.
+    \item \texttt{chmod}: empleado para cambiar los permisos de acceso y ejecución de archivos.
+    \item \texttt{history} y \texttt{man}: comandos para revisar el historial de acciones y consultar la documentación integrada del sistema.
+\end{itemize}
+
+En esta práctica específica se utilizó \textbf{Docker Desktop} como plataforma para ejecutar un contenedor basado en la imagen \texttt{ubuntu:latest}. Docker permite crear entornos virtualizados ligeros denominados contenedores, los cuales reproducen un sistema operativo completo sin necesidad de una máquina virtual tradicional. Gracias a esto, fue posible trabajar dentro de un entorno Linux real desde Windows, sin modificar el sistema anfitrión y garantizando un espacio seguro para la experimentación.
+
+Otra parte esencial del marco teórico se relaciona con la \textbf{estructura jerárquica del sistema de archivos en Linux}. A diferencia de otros sistemas operativos, Linux organiza todos los elementos dentro de una única raíz (\texttt{/}), desde la cual se ramifican directorios como \texttt{/home}, \texttt{/etc}, \texttt{/bin}, \texttt{/tmp}, entre otros. Comprender esta estructura es clave para navegar correctamente y para ejecutar scripts en las rutas adecuadas.
+
+Por último, se abordó el concepto de \textbf{permisos de ejecución}, que en Linux determinan qué usuarios pueden leer, escribir o ejecutar un archivo. Mediante el comando \texttt{chmod +x}, los scripts creados obtuvieron permisos para ser ejecutados, lo cual es fundamental para la seguridad y el control del sistema.
+
+\section{Objetivos}
+\begin{itemize}
+  \item Reconocer la importancia del Shell Bash como herramienta de administración y automatización en Linux.
+  \item Ejecutar comandos básicos de manejo de archivos y directorios.
+  \item Crear scripts Bash que automaticen procesos sencillos.
+  \item Comprender la estructura y funcionamiento del entorno de archivos en Linux.
+  \item Documentar las evidencias del trabajo realizado dentro del contenedor Docker.
+\end{itemize}
+
+\section{Desarrollo}
+
+\subsection{Verificación del entorno Docker}
+Primero se verificó la instalación correcta de Docker en Windows con:
+\begin{lstlisting}[language=bash]
+docker --version
+\end{lstlisting}
+
+\textbf{Salida esperada:} `Docker version 27.x.x`  
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{1ss.png}
+    \caption{Verificación del entorno Docker}
+    \label{fig:placeholder}
+\end{figure}
+
+\subsection{Ingreso al contenedor Ubuntu}
+Se inició un contenedor nuevo y limpio:
+\begin{lstlisting}[language=bash]
+docker run -it --name bash-lab ubuntu:latest bash
+\end{lstlisting}
+\textbf{Salida esperada:} `root@abc123:/#`  
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{2ss.png}
+    \caption{Ingreso al contenedor Ubuntu}
+    \label{fig:placeholder}
+\end{figure}
+
+\subsection{Comandos básicos y personalización}
+\begin{lstlisting}[language=bash]
+echo $PS1
+PS1="LAB> "
+exec bash
+\end{lstlisting}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{3ss.png}
+    \caption{Comandos básicos y personalización}
+    \label{fig:placeholder}
+\end{figure}
+Luego se practicaron comandos de navegación y gestión:
+\begin{lstlisting}[language=bash]
+pwd; ls; cd /tmp
+mkdir practica
+cd practica
+touch archivo1.txt
+echo "Hola desde Bash" > archivo1.txt
+cat archivo1.txt
+cp archivo1.txt archivo2.txt
+mv archivo2.txt backup.txt
+cd ..
+rm -r practica
+\end{lstlisting}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{4ss.png}
+    \caption{Ejecutando los comandos}
+    \label{fig:placeholder}
+\end{figure}
+\subsection{Historial y ayuda}
+\begin{lstlisting}[language=bash]
+man ls
+history
+clear
+\end{lstlisting}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{5ss.png}
+    \caption{Historial y ayuda}
+    \label{fig:placeholder}
+\end{figure}
+
+\subsection{Creación del script inicial}
+\begin{lstlisting}[language=bash]
+apt update
+apt install -y nano
+nano hola.sh
+\end{lstlisting}
+\textbf{Contenido:}
+\begin{lstlisting}[language=bash]
+#!/bin/bash
+echo "¡Hola desde mi script!"
+echo "Fecha: $(date)"
+echo "Usuario: $(whoami)"
+\end{lstlisting}
+
+\begin{lstlisting}[language=bash]
+chmod +x hola.sh
+./hola.sh
+\end{lstlisting}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{6ss.png}
+    \caption{Instalando apts}
+    \label{fig:placeholder}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{7ss.png}
+    \caption{Utilizando y probando nano}
+    \label{fig:placeholder}
+\end{figure}
+
+\subsection{Actividad reto}
+Se creó una estructura de proyecto:
+\begin{lstlisting}[language=bash]
+mkdir ~/reto_taller4
+cd ~/reto_taller4
+mkdir config datos logs
+touch config/sistema.conf datos/info.txt logs/error.log
+\end{lstlisting}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{8ss.png}
+    \caption{Configuración para actividad reto}
+    \label{fig:placeholder}
+\end{figure}
+
+Y se añadió contenido:
+\begin{lstlisting}[language=bash]
+echo "servidor=ubuntu-lab" > config/sistema.conf
+echo "Sistema: $(uname -a)" > datos/info.txt
+echo "[ERROR] Fallo de conexión" > logs/error.log
+\end{lstlisting}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{9ss.png}
+    \caption{Parte final de la configuración}
+    \label{fig:placeholder}
+\end{figure}
+
+Finalmente se elaboró el script \texttt{reporte.sh}:
+\begin{lstlisting}[language=bash]
+#!/bin/bash
+echo "=================================="
+echo "    REPORTE TALLER 4 - COMPLETADO"
+echo "=================================="
+echo "Fecha y hora: $(date)"
+echo "Usuario: $(whoami)"
+echo ""
+echo "Estructura del proyecto:"
+ls -la ~/reto_taller4
+echo ""
+echo "Configuración del sistema:"
+cat ~/reto_taller4/config/sistema.conf
+echo ""
+echo "Información del sistema:"
+cat ~/reto_taller4/datos/info.txt
+echo ""
+echo "Último error registrado:"
+tail -1 ~/reto_taller4/logs/error.log
+echo ""
+echo "¡RETO COMPLETADO CON ÉXITO!"
+echo "=================================="
+\end{lstlisting}
+
+\begin{lstlisting}[language=bash]
+chmod +x reporte.sh
+./reporte.sh
+\end{lstlisting}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{10ss.png}
+    \caption{Reporte Taller4}
+    \label{fig:placeholder}
+\end{figure}
+
+\section{Resultados}
+Todos los comandos fueron ejecutados correctamente; se logró crear, modificar y eliminar archivos sin errores. 
+El script reporte.sh generó un reporte automatizado mostrando la información del sistema y la estructura de carpetas, cumpliendo con los objetivos del taller.
+
+\section{Conclusiones}
+El taller permitió fortalecer el manejo del entorno Bash en Linux y la comprensión de su estructura jerárquica.  
+El uso de Docker facilitó la práctica al simular un sistema operativo completo, sin afectar el equipo principal.  
+Además, la creación de scripts introdujo el concepto de automatización, una habilidad fundamental en la administración de sistemas.  
+En conclusión, se desarrolló confianza en el uso del Shell Bash como herramienta de trabajo.
+
+\begin{thebibliography}{1}
+\bibitem{linux}
+The Linux Foundation, \emph{Introduction to Linux Command Line}, 2024.
+
+\bibitem{docker}
+Docker Inc., \emph{Docker Documentation}, \url{https://docs.docker.com}.
+
+\bibitem{bash}
+Free Software Foundation, \emph{Bash Reference Manual}, 2025.
+\end{thebibliography}
+
+\end{document}
