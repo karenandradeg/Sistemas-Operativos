@@ -1,0 +1,250 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{float}
+\floatplacement{figure}{H}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  language=bash,
+  keywordstyle=\color{blue},
+  commentstyle=\color{gray},
+  numbers=left,
+  numberstyle=\tiny,
+  captionpos=b
+}
+
+\title{Gestión avanzada de permisos de usuarios y grupos en contenedores Docker con Ubuntu}
+
+\author{
+\IEEEauthorblockN{Karen Andrade Gallardo}
+\IEEEauthorblockA{Universidad de Cuenca\\ Ingeniería en Telecomunicaciones\\
+karen.andradeg@ucuenca.edu.ec}
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Este informe tiene como objetivo principal implementar un sistema avanzado de gestión de permisos de usuarios y grupos dentro de un contenedor Ubuntu. Se crearon usuarios y grupos con UID/GID específicos, se configuraron directorios home con archivos personales y tareas, se establecieron permisos restrictivos y se verificó el correcto aislamiento entre usuarios. Finalmente, se generó un resumen completo de usuarios, grupos y permisos y estructura de directorios, demostrando el control granular que ofrece Linux dentro de entornos contenedorizados.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Docker, Contenedores, Linux, Permisos, Usuarios, Grupos, Ubuntu, Seguridad
+\end{IEEEkeywords}
+
+\section{Introducción}
+El uso de contenedores Docker permite ejecutar aplicaciones aisladas de forma ligera y portable. Sin embargo, en muchos escenarios reales es necesario replicar dentro del contenedor una estructura completa de usuarios y grupos similar a la de un sistema operativo tradicional, con el fin de aplicar políticas de seguridad, separación de privilegios y cumplimiento de requisitos organizacionales.
+
+El Reto 5.4 consistió en crear y configurar dentro de un contenedor Ubuntu los siguientes elementos:
+\begin{itemize}
+  \item Usuarios: Supervisor (UID 1001), Mantenimiento (UID 1002), Profesor (UID 1003), Alumno (UID 1004).
+  \item Grupos secundarios: Tecnología (GID 1020), Colegio (GID 1030).
+  \item Estructura de directorios /home con permisos estrictos.
+  \item Archivos de tareas (Tarea-A.txt, Tarea-B.txt, Tarea-C.txt) y archivo CONTRATO.txt exclusivos de ciertos usuarios.
+  \item Verificación de aislamiento entre usuarios.
+\end{itemize}
+
+\section{Marco teórico}
+
+\subsection{Conceptos fundamentales}
+\begin{itemize}
+  \item \textbf{Contenerización}: tecnología que permite empaquetar una aplicación con todas sus dependencias en una unidad estandarizada llamada contenedor.
+  \item \textbf{Docker}: plataforma líder para creación, distribución y ejecución de contenedores.
+  \item \textbf{Imágenes Docker}: plantillas de solo lectura que contienen el sistema de archivos y metadatos necesarios para crear contenedores.
+  \item \textbf{Contenedores}: instancias ejecutables de una imagen.
+  \item \textbf{UID/GID}: identificadores numéricos de usuario y grupo en sistemas Unix/Linux.
+  \item \textbf{/etc/passwd y /etc/group}: archivos que almacenan la información de usuarios y grupos.
+\end{itemize}
+
+\subsection{Tabla de comandos utilizados}
+\begin{table}[ht]
+\caption{Principales comandos empleados}
+\centering
+\begin{tabular}{ll}
+\toprule
+Comando & Descripción \\
+\midrule
+useradd, usermod & Crear y modificar usuarios \\
+groupadd, groupmod & Crear y modificar grupos \\
+chown, chgrp & Cambiar propietario y grupo de archivos \\
+chmod & Cambiar permisos de archivos y directorios \\
+mkdir -p & Crear estructura de directorios \\
+touch & Crear archivos vacíos \\
+echo & Escribir contenido en archivos \\
+su - usuario & Cambiar a otro usuario \\
+tree & Mostrar estructura de árbol \\
+cat /etc/passwd | grep & Filtrar usuarios \\
+\bottomrule
+\end{tabular}
+\label{tab:comandos}
+\end{table}
+
+\section{Desarrollo}
+
+\subsection{Creación y configuración del contenedor}
+Se ejecutó el contenedor interactivo con la imagen \texttt{pbarbecho/ubuntu\_permisos:latest}:
+\begin{lstlisting}[caption={Inicio del contenedor}]
+docker run -it --name permisos-container \
+pbarbecho/ubuntu_permisos:latest /bin/bash
+\end{lstlisting}
+
+Dentro del contenedor se instaló el comando \texttt{tree}:
+\begin{lstlisting}
+apt update && apt install -y tree
+\end{lstlisting}
+
+\subsection{Creación de usuarios y grupos}
+\begin{lstlisting}
+# Grupos
+groupadd -g 1020 Tecnologia
+groupadd -g 1030 Colegio
+
+# Usuarios con UID específicos y grupos secundarios
+useradd -m -u 1001 -G Tecnologia,Mantenimiento Supervisor
+useradd -m -u 1002 -G Tecnologia,Mantenimiento Mantenimiento
+useradd -m -u 1003 -G Colegio,Profesor Profesor
+useradd -m -u 1004 -G Colegio,Alumno Alumno
+
+# Contraseñas (todas 1111)
+echo "Supervisor:1111" | chpasswd
+echo "Mantenimiento:1111" | chpasswd
+echo "Profesor:1111" | chpasswd
+echo "Alumno:1111" | chpasswd
+\end{lstlisting}
+
+\subsection{Estructura de directorios y archivos}
+Se crearon los archivos de tareas y CONTRATO.txt con propietarios y permisos específicos:
+\begin{lstlisting}
+# Archivos en /home/Alumno
+install -o Alumno -g Colegio -m 644 /dev/null /home/Alumno/Tarea-A.txt
+install -o Alumno -g Colegio -m 644 /dev/null /home/Alumno/Tarea-B.txt
+install -o Alumno -g Colegio -m 644 /dev/null /home/Alumno/Tarea-C.txt
+
+# Archivos en /home/Profesor
+install -o Profesor -g Profesor -m 644 /dev/null /home/Profesor/Alumno-A.txt
+install -o Profesor -g Profesor -m 644 /dev/null /home/Profesor/Alumno-B.txt
+install -o Profesor -g Profesor -m 644 /dev/null /home/Profesor/Alumno-C.txt
+
+# CONTRATO.txt exclusivo del Supervisor
+install -o Supervisor -g Supervisor -m 600 /home/Supervisor/CONTRATO.txt
+echo "Confidencial" > /home/Supervisor/CONTRATO.txt
+\end{lstlisting}
+
+\subsection{Archivos de control en /home/Mantenimiento}
+\begin{lstlisting}
+echo -e "Supervisor: 1001\nMantenimiento: 1002\nProfesor: 1003\nAlumno: 1004" > /home/Mantenimiento/usuarios.txt
+
+echo -e "Tecnologia: 1020\nColegio: 1030" > /home/Mantenimiento/grupos.txt
+
+chown Mantenimiento:Mantenimiento /home/Mantenimiento/*.txt
+chmod 600 /home/Mantenimiento/*.txt
+\end{lstlisting}
+
+\subsection{Restricción de acceso entre usuarios}
+Se comprobó que el usuario Alumno no podía acceder a los directorios de otros usuarios:
+\begin{lstlisting}
+su - Alumno -c "tree /home"
+# Resultado: solo ve su propio directorio y los archivos Tarea-*.txt
+\end{lstlisting}
+
+\subsection{Resumen final generado}
+Se creó un script de resumen que muestra:
+\begin{itemize}
+  \item Usuarios y sus directorios home/shell
+  \item Grupos creados
+  \item Listado completo de /home con permisos
+  \item Contenido de usuarios.txt y grupos.txt
+\end{itemize}
+
+\subsection{Capturas de Pantalla}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{1.png}
+    \caption{Captura No.1}
+    \label{fig:placeholder}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{3.png}
+    \caption{Captura No.2}
+    \label{fig:placeholder}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{4.png}
+    \caption{Captura No.3}
+    \label{fig:placeholder}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{5.png}
+    \caption{Captura No.4}
+    \label{fig:placeholder}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{6.png}
+    \caption{Captura No.5}
+    \label{fig:placeholder}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{7.png}
+    \caption{Captura No.6}
+    \label{fig:placeholder}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{8.png}
+    \caption{Captura No.7}
+    \label{fig:placeholder}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{9.png}
+    \caption{Captura No.8}
+    \label{fig:placeholder}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{10.png}
+    \caption{Captura No.9}
+    \label{fig:placeholder}
+\end{figure}
+
+
+
+\section{Conclusiones}
+\begin{itemize}
+  \item Docker permite replicar la gestión de usuarios y grupos de un sistema Linux tradicional, incluyendo UID/GID personalizados y grupos secundarios.
+  \item La combinación de \texttt{chown}, \texttt{chgrp} y \texttt{chmod} dentro del contenedor ofrece un control total sobre los permisos, logrando un aislamiento efectivo entre usuarios no privilegiados.
+  \item El uso de archivos centrales (\texttt{usuarios.txt}, \texttt{grupos.txt}) administrados por el usuario Mantenimiento facilita auditorías y mantenimiento.
+  \item Se verificó que un usuario normal (Alumno) no puede listar ni acceder a los directorios home de otros usuarios cuando los permisos son 700, cumpliendo con el principio de menor privilegio.
+\end{itemize}
+
+
+\begin{thebibliography}{9}
+\bibitem{docker}
+Docker Inc., ``Docker Documentation'', \textit{Docker.com}, 2025. [Online]. Disponible: https://docs.docker.com/
+
+\bibitem{ubuntu}
+Canonical Ltd., ``Ubuntu Server Documentation'', \textit{Ubuntu.com}, 2025. [Online]. Disponible: https://ubuntu.com/server/docs
+
+\bibitem{linuxperm}
+M. Kerrisk, \textit{The Linux Programming Interface}, No Starch Press, 2010.
+
+\bibitem{ieee-docker}
+J. Turnbull, \textit{The Docker Book: Containerization is the new virtualization}, 2020.
+\end{thebibliography}
+
+\end{document}
