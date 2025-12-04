@@ -1,0 +1,64 @@
+#!/bin/bash
+
+# Script de Monitoreo de Recursos (Tarea 3)
+# Autor: Estudiante
+# Descripcion: Monitorea CPU, RAM y Disco cada 60 segundos por 5 minutos.
+
+OUTPUT_FILE="reporte_recursos.txt"
+DURATION=300  # 5 minutos en segundos
+INTERVAL=60   # Intervalo de 60 segundos
+END_TIME=$((SECONDS + DURATION))
+
+# Escribir cabecera
+echo "Tiempo              % Total de CPU libre    %Memoria Libre                % Disco Libre" > $OUTPUT_FILE
+echo "---------------------------------------------------------------------------------------" >> $OUTPUT_FILE
+
+# Función para obtener CPU Libre usando 'top'
+# top -bn1: Batch mode, 1 iteración
+# grep "Cpu(s)": Filtra la linea de CPU
+# awk '{print $8}': Obtiene el valor de idle (id) que es el 8vo campo usualmente (varía según distro/top version)
+# Nota: En algunas versiones de top 'id' está en otra posición. 
+# Una alternativa más robusta con solo los comandos permitidos es compleja, 
+# pero asumiremos el formato estándar: %Cpu(s): us, sy, ni, id, wa, hi, si, st
+get_cpu_free() {
+    top -bn1 | grep "Cpu(s)" | sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | awk '{print $1}'
+}
+
+# Función para obtener RAM Libre % usando 'free'
+get_mem_free() {
+    # free | grep Mem obtiene la linea de memoria
+    # awk calcula: (disponible / total) * 100. Usamos 'available' (columna 7) que es más preciso que 'free' (columna 4) para memoria realmente utilizable.
+    # Si se requiere estrictamente "free", usar columna 4.
+    free | grep Mem | awk '{printf "%.2f", ($4/$2 * 100.0)}'
+}
+
+# Función para obtener Disco Libre % usando 'df'
+get_disk_free() {
+    # df -h / obtiene datos de la raíz
+    # awk obtiene el porcentaje de uso (col 5), quitamos el % y restamos de 100
+    usage=$(df / | grep / | awk '{print $5}' | sed 's/%//')
+    echo "$((100 - usage))"
+}
+
+echo "Iniciando monitoreo..."
+echo "Los resultados se guardarán en $OUTPUT_FILE"
+
+current_time=60
+
+while [ $SECONDS -lt $END_TIME ]; do
+    sleep $INTERVAL
+    
+    cpu=$(get_cpu_free)
+    mem=$(get_mem_free)
+    disk=$(get_disk_free)
+    
+    # Formato de columnas alineado
+    printf "%-20s %-23s %-29s %-20s\n" "${current_time}s" "$cpu" "$mem" "$disk" >> $OUTPUT_FILE
+    
+    echo "Registro tomado a los ${current_time}s"
+    
+    current_time=$((current_time + 60))
+done
+
+echo "Monitoreo finalizado."
+cat $OUTPUT_FILE
